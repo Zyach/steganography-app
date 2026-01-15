@@ -1,11 +1,19 @@
 <resources>
 
-  <!-- Base application theme. -->
-  <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-    <!-- Customize your theme here. -->
-    <item name="colorPrimary">#000000</item>
-    <item name="colorPrimaryDark">#000000</item>
-    <item name="colorAccent">@color/colorAccent</item>
+  <!-- Base application theme using Material Components with DayNight support. -->
+  <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <item name="colorPrimary">@color/colorPrimary</item>
+    <item name="colorOnPrimary">@color/colorOnPrimary</item>
+    <item name="colorSecondary">@color/colorSecondary</item>
+    <item name="colorOnSecondary">@color/colorOnSecondary</item>
+    <item name="colorSurface">@color/colorSurface</item>
+    <item name="colorOnSurface">@color/colorOnSurface</item>
+    <item name="android:colorBackground">@color/colorBackground</item>
+    <item name="colorOnBackground">@color/colorOnBackground</item>
+    <item name="android:statusBarColor">?attr/colorPrimary</item>
+    <item name="android:navigationBarColor">?attr/colorSurface</item>
+    <item name="materialButtonStyle">@style/Widget.App.Button</item>
+    <item name="toolbarStyle">@style/Widget.App.Toolbar</item>
   </style>
 
   <style name="AppTheme.NoActionBar">
@@ -13,8 +21,18 @@
     <item name="windowNoTitle">true</item>
   </style>
 
-  <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+  <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
 
-  <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+  <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
+
+  <style name="Widget.App.Toolbar" parent="Widget.MaterialComponents.Toolbar">
+    <item name="android:background">?attr/colorSurface</item>
+    <item name="titleTextColor">?attr/colorOnSurface</item>
+    <item name="subtitleTextColor">?attr/colorOnSurface</item>
+  </style>
+
+  <style name="Widget.App.Button" parent="Widget.MaterialComponents.Button">
+    <item name="cornerRadius">12dp</item>
+  </style>
 
 </resources>

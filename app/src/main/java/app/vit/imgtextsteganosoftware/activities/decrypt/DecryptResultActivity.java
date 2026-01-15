@@ -2,6 +2,8 @@ package app.vit.imgtextsteganosoftware.activities.decrypt;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.content.ClipboardManager;
+import android.content.ClipData;
 
 import android.view.View;
 import android.widget.ImageView;
@@ -19,6 +21,7 @@ import app.vit.imgtextsteganosoftware.R;
 import app.vit.imgtextsteganosoftware.utils.Constants;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class DecryptResultActivity extends AppCompatActivity {
 
@@ -27,6 +30,8 @@ public class DecryptResultActivity extends AppCompatActivity {
 
   @BindView(R.id.ivSecretImage)
   ImageView ivSecretImage;
+  @BindView(R.id.bCopyText)
+  com.google.android.material.button.MaterialButton bCopyText;
 
 
   private String secretImagePath;
@@ -54,10 +59,19 @@ public class DecryptResultActivity extends AppCompatActivity {
 
     if (secretMessage != null) {
       tvSecretMessage.setText(secretMessage);
+      bCopyText.setVisibility(View.VISIBLE);
     } else if (secretImagePath != null) {
       ivSecretImage.setVisibility(View.VISIBLE);
       setSecretImage(secretImagePath);
     }
+  }
+
+  @OnClick(R.id.bCopyText)
+  public void onCopyClicked() {
+    ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+    ClipData clip = ClipData.newPlainText("secret", tvSecretMessage.getText());
+    clipboard.setPrimaryClip(clip);
+    tvSecretMessage.announceForAccessibility(getString(R.string.copy_text));
   }
 
 /*  public void initToolbar() {

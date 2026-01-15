@@ -3,6 +3,7 @@ package app.vit.imgtextsteganosoftware.activities.encrypt;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.content.Context;
 import android.media.ThumbnailUtils;
 import android.os.Environment;
 
@@ -52,7 +53,8 @@ class EncryptPresenterImpl implements EncryptPresenter, EncryptInteractorImpl.En
     //Should be false so that set pixels are not pre-multiplied by alpha value
     scaledBitmap.setPremultiplied(false);
 
-    String path = Environment.getExternalStorageDirectory() + File.separator + "CryptoMessenger";
+    String base = ((Context) mView).getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath();
+    String path = base + File.separator + "CryptoMessenger";
 
     File folder = new File(path);
 
@@ -78,12 +80,15 @@ class EncryptPresenterImpl implements EncryptPresenter, EncryptInteractorImpl.En
 
     int IMAGE_SIZE = 1500;
 
-    File file = new File(Environment.getExternalStorageDirectory().toString());
-    for (File temp : file.listFiles()) {
-      if (temp.getName().equals("temp.png")) {
-        file = temp;
-        break;
-      }
+    File dir = ((Context) mView).getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+    if (dir == null || dir.listFiles() == null) {
+      showParsingImageError();
+      return;
+    }
+    File file = dir.listFiles().length > 0 ? dir.listFiles()[0] : null;
+    if (file == null) {
+      showParsingImageError();
+      return;
     }
 
     BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
@@ -105,7 +110,8 @@ class EncryptPresenterImpl implements EncryptPresenter, EncryptInteractorImpl.En
     //Should be false so that set pixels are not pre-multiplied by alpha value
     scaledBitmap.setPremultiplied(false);
 
-    String path = Environment.getExternalStorageDirectory() + File.separator + "CryptoMessenger";
+    File baseDir = ((Context) mView).getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+    String path = baseDir.getAbsolutePath() + File.separator + "CryptoMessenger";
     File folder = new File(path);
 
     String photoName = getPhotoName(whichImage);
@@ -241,7 +247,7 @@ class EncryptPresenterImpl implements EncryptPresenter, EncryptInteractorImpl.En
   }
 
   private String storeStegoImage(Bitmap stegoImage) {
-    String path = Environment.getExternalStorageDirectory() + File.separator + "CryptoMessenger";
+    String path = ((Context) mView).getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath() + File.separator + "CryptoMessenger";
 
     File folder = new File(path);
     File file = null;

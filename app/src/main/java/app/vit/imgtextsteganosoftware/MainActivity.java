@@ -2,18 +2,20 @@ package app.vit.imgtextsteganosoftware;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import app.vit.imgtextsteganosoftware.activities.decrypt.DecryptActivity;
 import app.vit.imgtextsteganosoftware.activities.encrypt.EncryptActivity;
 import app.vit.imgtextsteganosoftware.activities.encrypt.EncryptImageActivity;
+import app.vit.imgtextsteganosoftware.utils.ThemeHelper;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
@@ -33,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    ThemeHelper.applySavedMode(this);
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
@@ -80,7 +83,6 @@ public class MainActivity extends AppCompatActivity {
     }
   }*/
 public boolean onCreateOptionsMenu(Menu menu) {
-  // Inflate the menu; this adds items to the action bar if it is present.
   getMenuInflater().inflate(R.menu.menu, menu);
   return true;
 }
@@ -88,15 +90,50 @@ public boolean onCreateOptionsMenu(Menu menu) {
   public boolean onOptionsItemSelected(MenuItem item) {
     int id = item.getItemId();
 
-    if (id == R.id.action_name) {
+    if (id == R.id.action_theme) {
+      showThemeChooser();
+      return true;
+    } else if (id == R.id.action_help) {
       Intent i = new Intent(getApplicationContext(), WelcomeActivity.class);
       i.putExtra("check", "true");
       startActivity(i);
-
-      Log.d("I", "In fb button");
       return true;
-
     }
-    return true;
+    return super.onOptionsItemSelected(item);
+  }
+
+  private void showThemeChooser() {
+    final String[] options = new String[]{
+      getString(R.string.theme_follow_system),
+      getString(R.string.theme_light),
+      getString(R.string.theme_dark)
+    };
+
+    int selected = 0;
+    int mode = ThemeHelper.getMode(this);
+    if (mode == AppCompatDelegate.MODE_NIGHT_NO) {
+      selected = 1;
+    } else if (mode == AppCompatDelegate.MODE_NIGHT_YES) {
+      selected = 2;
+    }
+
+    new MaterialAlertDialogBuilder(this)
+      .setTitle(R.string.theme_picker_title)
+      .setSingleChoiceItems(options, selected, (dialog, which) -> {
+        switch (which) {
+          case 0:
+            ThemeHelper.setMode(this, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+            break;
+          case 1:
+            ThemeHelper.setMode(this, AppCompatDelegate.MODE_NIGHT_NO);
+            break;
+          case 2:
+            ThemeHelper.setMode(this, AppCompatDelegate.MODE_NIGHT_YES);
+            break;
+        }
+        dialog.dismiss();
+      })
+      .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
+      .show();
   }
 }

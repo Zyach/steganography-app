@@ -1,28 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
-
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="#121212"
-    android:fillViewport="true"
-    app:layout_constraintTop_toBottomOf="parent"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/colorBackground"
+    android:fillViewport="true">
   <androidx.constraintlayout.widget.ConstraintLayout
       android:id="@+id/activity_encrypt"
-      android:background="#121212"
+      android:background="@color/colorBackground"
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
+      android:layout_height="wrap_content"
       android:fitsSystemWindows="true"
       tools:context=".activities.decrypt.DecryptResultActivity">
 
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
@@ -46,7 +41,7 @@
           android:text="single level protection Layer encrypted...\n Here is your secrete message"
           android:textAlignment="center"
           android:textAllCaps="true"
-          android:textColor="#ffffff"
+          android:textColor="@color/colorOnBackground"
           android:textSize="24sp"
           android:textStyle="bold" />
 
@@ -58,8 +53,17 @@
           android:fontFamily="serif"
           android:paddingTop="2dp"
           android:text=""
-          android:textColor="#bb86fc"
+          android:textColor="@color/colorOnSurface"
           android:textSize="18sp" />
+
+      <com.google.android.material.button.MaterialButton
+          android:id="@+id/bCopyText"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/copy_text"
+          android:textColor="@color/colorOnPrimary"
+          android:layout_marginTop="12dp"
+          android:visibility="gone"/>
 
       <ImageView
           android:id="@+id/ivSecretImage"

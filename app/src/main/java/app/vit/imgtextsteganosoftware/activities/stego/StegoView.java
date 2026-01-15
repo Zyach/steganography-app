@@ -15,7 +15,5 @@ interface StegoView {
 
   void setStegoImage(String path);
 
-  void saveToMedia(Intent intent);
-
   void shareStegoImage(String path);
 }

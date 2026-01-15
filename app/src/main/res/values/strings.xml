@@ -61,4 +61,14 @@
 
     <string name="slide_4_title">Warning</string>
     <string name="slide_4_desc">Do not share images via WhatsApp or Facebook because these apps compresses images which leads to loss of encoded message</string>
+
+    <!-- Theme picker -->
+    <string name="theme_picker_title">Theme</string>
+    <string name="theme_follow_system">Follow system</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+
+    <!-- Capacity -->
+    <string name="capacity_label">Capacity available: %1$s</string>
+    <string name="copy_text">Copy text</string>
 </resources>

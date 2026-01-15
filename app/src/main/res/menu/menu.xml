@@ -3,9 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_name"
-        android:icon="@drawable/ic_help"
-        android:title="Text to be seen by user"
-        app:showAsAction="always"
+        android:id="@+id/action_theme"
+        android:icon="@drawable/ic_data"
+        android:title="Theme"
+        app:showAsAction="ifRoom"
         android:orderInCategory="0"/>
+    <item
+        android:id="@+id/action_help"
+        android:icon="@drawable/ic_help"
+        android:title="How it works"
+        app:showAsAction="never"
+        android:orderInCategory="1"/>
 </menu>

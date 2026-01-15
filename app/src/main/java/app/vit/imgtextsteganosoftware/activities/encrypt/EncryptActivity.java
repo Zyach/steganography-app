@@ -1,37 +1,43 @@
 package app.vit.imgtextsteganosoftware.activities.encrypt;
 
-import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+
+import app.vit.imgtextsteganosoftware.BuildConfig;
 
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import app.vit.imgtextsteganosoftware.R;
 import app.vit.imgtextsteganosoftware.activities.stego.StegoActivity;
 import app.vit.imgtextsteganosoftware.utils.Constants;
+import app.vit.imgtextsteganosoftware.utils.ImageUtils;
 import app.vit.imgtextsteganosoftware.utils.StandardMethods;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,6 +51,8 @@ public class EncryptActivity extends AppCompatActivity implements EncryptView {
   ImageView ivCoverImage;
   @BindView(R.id.ivSecretImage)
   ImageView ivSecretImage;
+  @BindView(R.id.tvCapacity)
+  TextView tvCapacity;
 
   /*@BindView(R.id.rbText)
   RadioButton rbText;
@@ -79,31 +87,9 @@ public class EncryptActivity extends AppCompatActivity implements EncryptView {
       @Override
       public void onClick(DialogInterface dialogInterface, int item) {
         if (items[item].equals(getString(R.string.take_image_dialog))) {
-
-          if (ContextCompat.checkSelfPermission(getApplicationContext(),
-            Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(getApplicationContext(),
-              Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(EncryptActivity.this,
-              new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-              Constants.PERMISSIONS_CAMERA);
-
-          } else {
-            openCamera();
-          }
+          openCamera();
         } else if (items[item].equals(getString(R.string.select_image_dialog))) {
-
-          if (ContextCompat.checkSelfPermission(getApplicationContext(),
-            Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(EncryptActivity.this,
-              new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-              Constants.PERMISSIONS_EXTERNAL_STORAGE);
-
-          } else {
-            chooseImage();
-          }
+          chooseImage();
         }
       }
     });
@@ -143,6 +129,10 @@ public class EncryptActivity extends AppCompatActivity implements EncryptView {
   private EncryptPresenter mPresenter;
   private int whichImage = -1;
   private int secretMessageType = Constants.TYPE_TEXT;
+  private ActivityResultLauncher<PickVisualMediaRequest> coverPicker;
+  private ActivityResultLauncher<PickVisualMediaRequest> secretPicker;
+  private ActivityResultLauncher<Uri> cameraLauncher;
+  private Uri pendingCameraUri;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -163,6 +153,8 @@ public class EncryptActivity extends AppCompatActivity implements EncryptView {
     progressDialog.setMessage("Please wait...");
 
     mPresenter = new EncryptPresenterImpl(this);
+
+    initPickers();
 
     SharedPreferences sp = getSharedPrefs();
     String filePath = sp.getString(Constants.PREF_COVER_PATH, "");
@@ -185,70 +177,74 @@ public class EncryptActivity extends AppCompatActivity implements EncryptView {
     }
   }*/
 
-  @Override
-  public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+  private void initPickers() {
+    coverPicker = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+      if (uri != null) {
+        handlePickedImage(uri, Constants.COVER_IMAGE);
+      }
+    });
 
-    switch (requestCode) {
-      case Constants.PERMISSIONS_CAMERA:
-        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED &&
-          grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-          openCamera();
-        }
-        break;
-      case Constants.PERMISSIONS_EXTERNAL_STORAGE:
-        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-          chooseImage();
-        }
-        break;
+    secretPicker = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+      if (uri != null) {
+        handlePickedImage(uri, Constants.SECRET_IMAGE);
+      }
+    });
+
+    cameraLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(), success -> {
+      if (success && pendingCameraUri != null) {
+        handlePickedImage(pendingCameraUri, whichImage);
+      }
+    });
+  }
+
+  private void handlePickedImage(Uri uri, int target) {
+    try {
+      int IMAGE_SIZE = 1500;
+      if (target == Constants.SECRET_IMAGE) {
+        IMAGE_SIZE = 150 + IMAGE_SIZE / 6;
+      }
+      Bitmap bitmap = ImageUtils.decodeUriToBitmap(this, uri, IMAGE_SIZE);
+      File file = writeTempFile(bitmap, target == Constants.COVER_IMAGE ? "cover" : "secret");
+      this.whichImage = target;
+      mPresenter.selectImage(target, file.getAbsolutePath());
+    } catch (IOException e) {
+      e.printStackTrace();
+      showToast(R.string.compress_error);
     }
+  }
+
+  private File writeTempFile(Bitmap bitmap, String prefix) throws IOException {
+    File dir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+    if (dir == null) dir = getCacheDir();
+    File file = File.createTempFile(prefix + "_", ".png", dir);
+    try (FileOutputStream fos = new FileOutputStream(file)) {
+      bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+    }
+    return file;
   }
 
   @Override
   public void openCamera() {
-    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-    File file = new File(android.os.Environment
-      .getExternalStorageDirectory(), "temp.png");
+    pendingCameraUri = createTempUri();
+    cameraLauncher.launch(pendingCameraUri);
+  }
 
-    Uri imageUri = FileProvider.getUriForFile(this, "alexparunov", file);
-
-    intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-    startActivityForResult(intent, Constants.REQUEST_CAMERA);
+  private Uri createTempUri() {
+    File dir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+    if (dir == null) {
+      dir = getCacheDir();
+    }
+    File file = new File(dir, "captured_" + System.currentTimeMillis() + ".png");
+    return FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".fileprovider", file);
   }
 
   @Override
   public void chooseImage() {
-    Intent intent = new Intent(
-      Intent.ACTION_PICK,
-      android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-    intent.setType("image/*");
-    startActivityForResult(
-      Intent.createChooser(intent, getString(R.string.choose_image)),
-      Constants.SELECT_FILE);
-  }
-
-  @Override
-  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    super.onActivityResult(requestCode, resultCode, data);
-
-    if (resultCode == RESULT_OK) {
-      if (requestCode == Constants.REQUEST_CAMERA) {
-        mPresenter.selectImageCamera(whichImage);
-      } else if (requestCode == Constants.SELECT_FILE) {
-        Uri selectedImageUri = data.getData();
-        String tempPath = getPath(selectedImageUri, EncryptActivity.this);
-        mPresenter.selectImage(whichImage, tempPath);
-      }
-    }
-  }
-
-
-  public String getPath(Uri uri, AppCompatActivity activity) {
-    String[] projection = {MediaStore.MediaColumns.DATA};
-    Cursor cursor = activity.managedQuery(uri, projection, null, null, null);
-    int column_index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
-    cursor.moveToFirst();
-    return cursor.getString(column_index);
+    ActivityResultLauncher<PickVisualMediaRequest> launcher =
+      whichImage == Constants.COVER_IMAGE ? coverPicker : secretPicker;
+    launcher.launch(new PickVisualMediaRequest.Builder()
+      .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+      .build());
   }
 
   @Override
@@ -278,6 +274,12 @@ public class EncryptActivity extends AppCompatActivity implements EncryptView {
     editor.putString(Constants.PREF_COVER_PATH, file.getAbsolutePath());
     editor.putBoolean(Constants.PREF_COVER_IS_SET, true);
     editor.apply();
+
+    Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+    if (bitmap != null) {
+      long capacity = ImageUtils.estimateCapacityBytes(bitmap);
+      tvCapacity.setText(getString(R.string.capacity_label, ImageUtils.formatBytes(capacity)));
+    }
   }
 
   @Override

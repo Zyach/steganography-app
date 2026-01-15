@@ -1,29 +1,27 @@
 package app.vit.imgtextsteganosoftware.activities.decrypt;
 
-import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.widget.ImageView;
 
-import androidx.annotation.NonNull;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.io.IOException;
 
 import app.vit.imgtextsteganosoftware.R;
 import app.vit.imgtextsteganosoftware.utils.Constants;
+import app.vit.imgtextsteganosoftware.utils.ImageUtils;
 import app.vit.imgtextsteganosoftware.utils.StandardMethods;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -36,17 +34,7 @@ public class DecryptActivity extends AppCompatActivity implements DecryptView {
 
   @OnClick(R.id.ivStegoImage)
   public void onStegoImageClick() {
-    if (ContextCompat.checkSelfPermission(getApplicationContext(),
-      Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-
-      ActivityCompat.requestPermissions(DecryptActivity.this,
-        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-        Constants.PERMISSIONS_EXTERNAL_STORAGE);
-
-    } else {
-      chooseImage();
-    }
-
+    chooseImage();
   }
 
   @OnClick(R.id.bDecrypt)
@@ -61,6 +49,7 @@ public class DecryptActivity extends AppCompatActivity implements DecryptView {
   private ProgressDialog progressDialog;
   private DecryptPresenter mPresenter;
   private boolean isSISelected = false;
+  private ActivityResultLauncher<PickVisualMediaRequest> stegoPicker;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +65,32 @@ public class DecryptActivity extends AppCompatActivity implements DecryptView {
     progressDialog.setMessage("Please wait...");
 
     mPresenter = new DecryptPresenterImpl(this);
+    initPicker();
     //initToolbar();
+  }
+
+  private void initPicker() {
+    stegoPicker = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+      if (uri != null) {
+        try {
+          Bitmap bitmap = ImageUtils.decodeUriToBitmap(this, uri, 1500);
+          File file = writeTempFile(bitmap);
+          mPresenter.selectImage(file.getAbsolutePath());
+        } catch (IOException e) {
+          showToast(R.string.compress_error);
+        }
+      }
+    });
+  }
+
+  private File writeTempFile(Bitmap bitmap) throws IOException {
+    File dir = getExternalFilesDir(android.os.Environment.DIRECTORY_PICTURES);
+    if (dir == null) dir = getCacheDir();
+    File file = File.createTempFile("stego_", ".png", dir);
+    try (java.io.FileOutputStream fos = new java.io.FileOutputStream(file)) {
+      bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+    }
+    return file;
   }
 
 /*  @Override
@@ -92,42 +106,10 @@ public class DecryptActivity extends AppCompatActivity implements DecryptView {
   }*/
 
   @Override
-  public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-    switch (requestCode) {
-      case Constants.PERMISSIONS_EXTERNAL_STORAGE:
-        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-          chooseImage();
-        }
-        break;
-    }
-  }
-
-  @Override
   public void chooseImage() {
-    Intent intent = new Intent(
-      Intent.ACTION_PICK,
-      android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-    intent.setType("image/*");
-    startActivityForResult(
-      Intent.createChooser(intent, getString(R.string.choose_image)),
-      Constants.SELECT_FILE);
-  }
-
-  @Override
-  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    super.onActivityResult(requestCode, resultCode, data);
-
-    if (resultCode == RESULT_OK) {
-      if (requestCode == Constants.SELECT_FILE) {
-        Uri selectedImageUri = data.getData();
-        String tempPath = getPath(selectedImageUri, DecryptActivity.this);
-        if(tempPath != null) {
-          mPresenter.selectImage(tempPath);
-        }
-      }
-    }
+    stegoPicker.launch(new PickVisualMediaRequest.Builder()
+      .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+      .build());
   }
 
   @Override

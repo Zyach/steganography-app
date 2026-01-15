@@ -11,11 +11,12 @@ import android.widget.ImageView;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.FileProvider;
 
+import app.vit.imgtextsteganosoftware.BuildConfig;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
-
 import app.vit.imgtextsteganosoftware.R;
 import app.vit.imgtextsteganosoftware.utils.Constants;
 import app.vit.imgtextsteganosoftware.utils.StandardMethods;
@@ -122,18 +123,15 @@ public class StegoActivity extends AppCompatActivity implements StegoView {
   }
 
   @Override
-  public void saveToMedia(Intent intent) {
-    sendBroadcast(intent);
-  }
-
-  @Override
   public void shareStegoImage(String path) {
     if(stegoImagePath != null) {
+      File file = new File(path);
+      Uri uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".fileprovider", file);
       Intent share = new Intent(Intent.ACTION_SEND);
       share.setType("image/png");
-      Uri imageURI = Uri.fromFile(new File(path));
-      share.putExtra(Intent.EXTRA_STREAM, imageURI);
-      startActivity(Intent.createChooser(share, "Share using..."));
+      share.putExtra(Intent.EXTRA_STREAM, uri);
+      share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+      startActivity(Intent.createChooser(share, getString(R.string.b_stego_image_share)));
     }
   }
 

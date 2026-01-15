@@ -1,30 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
-
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="#121212"
-    android:fillViewport="true"
-    app:layout_constraintTop_toBottomOf="parent"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/colorBackground"
+    android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/activity_encrypt"
-        android:background="#121212"
+        android:background="@color/colorBackground"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:fitsSystemWindows="true"
         tools:context=".activities.encrypt.EncryptImageActivity">
 
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
@@ -45,21 +40,36 @@
                 android:text="@string/select_image_title"
                 android:textAlignment="center"
                 android:textAllCaps="true"
-                android:textColor="#ffffff"
+                android:textColor="@color/colorOnBackground"
                 android:layout_marginBottom="30dp"
                 android:textSize="24sp" />
 
-            <ImageView
-                android:id="@+id/ivCoverImage"
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_gravity="center"
-                android:layout_marginBottom="20dp"
-                android:baselineAlignBottom="false"
-                android:contentDescription="@string/select_image_title"
-                android:textAlignment="gravity"
-                app:srcCompat="@drawable/ic_upload"
-                tools:ignore="VectorDrawableCompat" />
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp">
+
+                <ImageView
+                    android:id="@+id/ivCoverImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="260dp"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"
+                    android:contentDescription="@string/select_image_title"
+                    app:srcCompat="@drawable/ic_upload"
+                    tools:ignore="VectorDrawableCompat" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/tvCapacity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorOnBackground"
+                android:textSize="14sp"
+                android:text=" "
+                android:layout_marginBottom="12dp"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -68,7 +78,7 @@
                 android:fontFamily="serif"
                 android:text="SELECT IMAGE TO HIDE"
                 android:textAlignment="center"
-                android:textColor="#ffffff"
+                android:textColor="@color/colorOnBackground"
                 android:textIsSelectable="true"
                 android:layout_marginBottom="20dp"
                 android:textSize="24sp" />
@@ -100,25 +110,33 @@
                 app:layout_constraintVertical_bias="0.0" />
 
 
-            <ImageView
-                android:id="@+id/ivSecretImage"
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_gravity="center"
-                android:visibility="visible"
-                app:srcCompat="@drawable/ic_upload"
-                android:layout_marginBottom="40dp"
-                tools:ignore="VectorDrawableCompat" />
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp">
 
-            <androidx.appcompat.widget.AppCompatButton
+                <ImageView
+                    android:id="@+id/ivSecretImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="260dp"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"
+                    android:contentDescription="@string/select_image_dialog"
+                    android:visibility="visible"
+                    app:srcCompat="@drawable/ic_upload"
+                    tools:ignore="VectorDrawableCompat" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/bEncrypt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:background="@drawable/edit_text_shape"
-                android:fontFamily="serif"
+                android:fontFamily="sans-serif-medium"
                 android:text="@string/b_secret_text_encrypt"
-                android:textColor="#ffffff"
+                android:textColor="@color/colorOnPrimary"
                 android:padding="15dp"
                 android:layout_marginBottom="20dp"
                 android:textSize="18sp" />
