@@ -26,8 +26,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
-import app.vit.imgtextsteganosoftware.BuildConfig;
-
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -235,7 +233,7 @@ public class EncryptActivity extends AppCompatActivity implements EncryptView {
       dir = getCacheDir();
     }
     File file = new File(dir, "captured_" + System.currentTimeMillis() + ".png");
-    return FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".fileprovider", file);
+    return FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", file);
   }
 
   @Override
@@ -262,7 +260,7 @@ public class EncryptActivity extends AppCompatActivity implements EncryptView {
   @Override
   public void setCoverImage(File file) {
     showProgressDialog();
-    Picasso.with(this)
+    Picasso.get()
       .load(file)
       .fit()
       .placeholder(R.drawable.ic_upload)
@@ -290,7 +288,7 @@ public class EncryptActivity extends AppCompatActivity implements EncryptView {
   @Override
   public void setSecretImage(File file) {
     showProgressDialog();
-    Picasso.with(this)
+    Picasso.get()
       .load(file)
       .fit()
       .placeholder(R.drawable.ic_upload)

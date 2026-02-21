@@ -11,6 +11,11 @@
   <color name="colorOnBackground">#E5E7EB</color>
   <color name="colorOutline">#1F2A44</color>
 
+  <!-- Legacy aliases for existing layouts -->
+  <color name="colorPrimaryBlack">#0A0E14</color>
+  <color name="colorPrimaryWhite">#E5E7EB</color>
+  <color name="colorBlueGreySecondary">#90A4AE</color>
+
   <!-- Onboarding dots (dark) -->
   <color name="bg_screen1">#0B1324</color>
   <color name="bg_screen2">#0B1324</color>

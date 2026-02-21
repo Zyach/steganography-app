@@ -127,14 +127,6 @@ public class DecryptActivity extends AppCompatActivity implements DecryptView {
     startActivity(intent);
   }
 
-  public String getPath(Uri uri, AppCompatActivity activity) {
-    String[] projection = {MediaStore.MediaColumns.DATA};
-    Cursor cursor = activity.managedQuery(uri, projection, null, null, null);
-    int column_index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
-    cursor.moveToFirst();
-    return cursor.getString(column_index);
-  }
-
   @Override
   public Bitmap getStegoImage() {
     return ((BitmapDrawable) ivStegoImage.getDrawable()).getBitmap();
@@ -143,7 +135,7 @@ public class DecryptActivity extends AppCompatActivity implements DecryptView {
   @Override
   public void setStegoImage(File file) {
     showProgressDialog();
-    Picasso.with(this)
+    Picasso.get()
       .load(file)
       .fit()
       .placeholder(R.drawable.ic_upload)

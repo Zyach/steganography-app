@@ -13,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
 
-import app.vit.imgtextsteganosoftware.BuildConfig;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -95,7 +94,7 @@ public class StegoActivity extends AppCompatActivity implements StegoView {
   @Override
   public void setStegoImage(String path) {
     showProgressDialog();
-    Picasso.with(this)
+    Picasso.get()
       .load(new File(path))
       .fit()
       .placeholder(R.drawable.ic_upload)
@@ -126,7 +125,7 @@ public class StegoActivity extends AppCompatActivity implements StegoView {
   public void shareStegoImage(String path) {
     if(stegoImagePath != null) {
       File file = new File(path);
-      Uri uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".fileprovider", file);
+      Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", file);
       Intent share = new Intent(Intent.ACTION_SEND);
       share.setType("image/png");
       share.putExtra(Intent.EXTRA_STREAM, uri);

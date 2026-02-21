@@ -86,7 +86,7 @@ public class DecryptResultActivity extends AppCompatActivity {
   }*/
 
   public void setSecretImage(String path) {
-    Picasso.with(this)
+    Picasso.get()
       .load(new File(path))
       .fit()
       .placeholder(R.drawable.ic_upload)

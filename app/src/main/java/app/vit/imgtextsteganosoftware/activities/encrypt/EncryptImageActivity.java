@@ -25,8 +25,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
-import app.vit.imgtextsteganosoftware.BuildConfig;
-
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -86,31 +84,9 @@ public class EncryptImageActivity extends AppCompatActivity implements EncryptVi
       @Override
       public void onClick(DialogInterface dialogInterface, int item) {
         if (items[item].equals(getString(R.string.take_image_dialog))) {
-
-          if (ContextCompat.checkSelfPermission(getApplicationContext(),
-            Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(getApplicationContext(),
-              Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(EncryptImageActivity.this,
-              new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-              Constants.PERMISSIONS_CAMERA);
-
-          } else {
-            openCamera();
-          }
+          openCamera();
         } else if (items[item].equals(getString(R.string.select_image_dialog))) {
-
-          if (ContextCompat.checkSelfPermission(getApplicationContext(),
-            Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(EncryptImageActivity.this,
-              new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-              Constants.PERMISSIONS_EXTERNAL_STORAGE);
-
-          } else {
-            chooseImage();
-          }
+          chooseImage();
         }
       }
     });
@@ -265,7 +241,7 @@ public class EncryptImageActivity extends AppCompatActivity implements EncryptVi
       dir = getCacheDir();
     }
     File file = new File(dir, "captured_" + System.currentTimeMillis() + ".png");
-    return FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".fileprovider", file);
+    return FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", file);
   }
 
   @Override
@@ -283,7 +259,7 @@ public class EncryptImageActivity extends AppCompatActivity implements EncryptVi
   @Override
   public void setCoverImage(File file) {
     showProgressDialog();
-    Picasso.with(this)
+    Picasso.get()
       .load(file)
       .fit()
       .placeholder(R.drawable.ic_upload)
@@ -311,7 +287,7 @@ public class EncryptImageActivity extends AppCompatActivity implements EncryptVi
   @Override
   public void setSecretImage(File file) {
     showProgressDialog();
-    Picasso.with(this)
+    Picasso.get()
       .load(file)
       .fit()
       .placeholder(R.drawable.ic_upload)
